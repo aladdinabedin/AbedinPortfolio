@@ -151,8 +151,7 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/v/bs5/dt-1.13.8/b-2.4.2/sl-1.7.0/datatables.min.js"></script>
   <script>
-    // Use hosted JSON on GitHub Pages, local JSON when served from a server, and inline data when opened via file://
-    // Hosted JSON lives on the repo's raw endpoint so it is always reachable via AJAX.
+    // Data source: inline fallback (works over file://), local file (works from localhost), remote raw JSON (works on GitHub Pages).
     const remoteDataUrl = "https://raw.githubusercontent.com/aladdinabedin/AbedinPortfolio/main/assets/data/people.json";
     const localDataUrl = "assets/data/people.json";
 
@@ -190,7 +189,9 @@
     ];
 
     const isFile = window.location.protocol === "file:";
-    const dataUrl = window.location.protocol === "file:" ? null : remoteDataUrl;
+    const isHttp = window.location.protocol.startsWith("http");
+    const useAjax = !isFile; // only attempt AJAX when not file://
+    const dataUrl = isHttp ? remoteDataUrl : remoteDataUrl;
 
     const columnSetup = [
       {
@@ -219,17 +220,23 @@
     ];
 
     function initTable(selector) {
-      const ajaxConfig = isFile
-        ? undefined
-        : function (_data, callback) {
-            fetch(dataUrl)
-              .then((res) => res.json())
-              .then((json) => callback({ data: json.results || json }))
-              .catch(() => callback({ data: inlineData }));
-          };
-
       const table = $(selector).DataTable({
-        ...(isFile ? { data: inlineData } : { ajax: ajaxConfig }),
+        // Seed rows immediately with inline data so file:// and slow networks still show content.
+        data: inlineData,
+        // When allowed, pull fresh data via AJAX; if it fails, rows stay from inlineData.
+        ...(useAjax
+          ? {
+              ajax: {
+                url: dataUrl,
+                dataSrc: function (json) {
+                  return json && json.results ? json.results : json || [];
+                },
+                error: function () {
+                  // Keep inline rows; no-op on error.
+                }
+              }
+            }
+          : {}),
         columns: columnSetup,
         processing: true,
         dom:
