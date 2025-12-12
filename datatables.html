@@ -189,9 +189,6 @@
     ];
 
     const isFile = window.location.protocol === "file:";
-    const isHttp = window.location.protocol.startsWith("http");
-    const useAjax = !isFile; // only attempt AJAX when not file://
-    const dataUrl = isHttp ? remoteDataUrl : remoteDataUrl;
 
     const columnSetup = [
       {
@@ -221,22 +218,20 @@
 
     function initTable(selector) {
       const table = $(selector).DataTable({
-        // Seed rows immediately with inline data so file:// and slow networks still show content.
-        data: inlineData,
-        // When allowed, pull fresh data via AJAX; if it fails, rows stay from inlineData.
-        ...(useAjax
-          ? {
-              ajax: {
-                url: dataUrl,
-                dataSrc: function (json) {
-                  return json && json.results ? json.results : json || [];
-                },
-                error: function () {
-                  // Keep inline rows; no-op on error.
-                }
-              }
-            }
-          : {}),
+        // Always use AJAX config: file:// returns inline data; http(s) fetches remote with fallback to inline.
+        ajax: function (_data, callback) {
+          if (isFile) {
+            callback({ data: inlineData });
+            return;
+          }
+          fetch(remoteDataUrl)
+            .then((res) => res.json())
+            .then((json) => {
+              const rows = json && json.results ? json.results : json || [];
+              callback({ data: rows });
+            })
+            .catch(() => callback({ data: inlineData }));
+        },
         columns: columnSetup,
         processing: true,
         dom:
@@ -267,11 +262,7 @@
             text: "Reload Data",
             className: "btn btn-outline-primary btn-sm",
             action: function (e, dt) {
-              if (isFile) {
-                dt.clear().rows.add(inlineData).draw();
-              } else {
-                dt.ajax.reload();
-              }
+              dt.ajax.reload();
             }
           }
         ],
