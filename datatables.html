@@ -8,24 +8,42 @@
   <link rel="stylesheet" href="https://cdn.datatables.net/v/bs5/dt-1.13.8/b-2.4.2/sl-1.7.0/datatables.min.css" />
   <style>
     body {
-      background: radial-gradient(circle at top left, #0d6efd1a, #0d6efd08 35%, transparent 60%), #f5f7fb;
+      background: radial-gradient(circle at 20% 20%, #0d6efd11, transparent 40%), radial-gradient(circle at 80% 0%, #6610f214, transparent 35%), #f4f6fb;
       min-height: 100vh;
+      color: #1f2937;
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
     }
 
     .page-header {
-      background: linear-gradient(135deg, #0d6efd, #6610f2);
+      background: linear-gradient(120deg, #0d6efd, #7c3aed);
       color: #fff;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
     }
 
     .page-header h1 {
       margin: 0;
-      font-weight: 700;
-      letter-spacing: 0.5px;
+      font-weight: 800;
+      letter-spacing: 0.2px;
     }
 
     .datatable-card {
-      border: 1px solid #e5e7eb;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+      border: none;
+      border-radius: 18px;
+      box-shadow: 0 20px 60px rgba(13, 110, 253, 0.12);
+    }
+
+    .nav-tabs .nav-link {
+      border: none;
+      color: #6b7280;
+      font-weight: 600;
+      padding: 0.85rem 1.25rem;
+    }
+
+    .nav-tabs .nav-link.active {
+      color: #0d6efd;
+      background: #e9f2ff;
+      border-radius: 12px 12px 0 0;
+      box-shadow: inset 0 -2px 0 #0d6efd;
     }
 
     .dt-top .dataTables_paginate {
@@ -52,12 +70,54 @@
       display: none !important;
     }
 
-    .filters input {
-      min-width: 120px;
+    .dt-actions {
+      background: linear-gradient(90deg, #0d6efd, #7c3aed);
+      padding: 0.35rem;
+      border-radius: 12px;
+      box-shadow: 0 10px 20px rgba(13, 110, 253, 0.15);
     }
 
-    .filters input::placeholder {
-      color: #6c757d;
+    .dt-actions .btn {
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      box-shadow: none;
+    }
+
+    .dt-actions .btn.btn-danger {
+      background: #ef4444;
+    }
+
+    .dt-actions .btn.btn-outline-secondary {
+      background: rgba(255, 255, 255, 0.12);
+      color: #fff;
+      border: 1px solid rgba(255, 255, 255, 0.25);
+    }
+
+    .filters th {
+      background: #f8fafc !important;
+    }
+
+    .filters input {
+      min-width: 120px;
+      border-radius: 10px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .filters input:focus {
+      box-shadow: 0 0 0 3px rgba(13, 110, 253, 0.15);
+      border-color: #0d6efd;
+    }
+
+    table.dataTable thead th {
+      border-bottom: none;
+      color: #0f172a;
+      font-weight: 700;
+      background: #f1f5f9;
+    }
+
+    table.dataTable tbody tr:hover {
+      background: #f8fbff;
     }
 
     .table-responsive {
