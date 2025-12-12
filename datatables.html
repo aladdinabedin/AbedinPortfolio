@@ -155,7 +155,8 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.datatables.net/v/bs5/dt-1.13.8/b-2.4.2/sl-1.7.0/datatables.min.js"></script>
   <script>
-    const dataUrl = "https://randomuser.me/api/?results=100&nat=us,gb,fr,au,ca";
+    // Local JSON keeps the AJAX source working even if remote APIs are blocked by CORS.
+    const dataUrl = "assets/data/people.json";
 
     const columnSetup = [
       {
@@ -190,6 +191,7 @@
           dataSrc: "results"
         },
         columns: columnSetup,
+        processing: true,
         dom:
           "<'dt-top row mb-2'<'col-12 text-center'p>>" +
           "<'dt-actions d-flex flex-wrap gap-2 align-items-center mb-2'B>" +
@@ -236,7 +238,7 @@
         ],
         deferRender: true,
         language: {
-          info: "Showing _START_ to _END_ of _TOTAL_ entries"
+          info: "Showing page _PAGE_ of _PAGES_ (entries _START_ to _END_ of _TOTAL_)"
         }
       });
 
