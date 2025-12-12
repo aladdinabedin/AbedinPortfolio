@@ -152,7 +152,8 @@
   <script src="https://cdn.datatables.net/v/bs5/dt-1.13.8/b-2.4.2/sl-1.7.0/datatables.min.js"></script>
   <script>
     // Use hosted JSON on GitHub Pages, local JSON when served from a server, and inline data when opened via file://
-    const hostedDataUrl = "https://aladdinabedin.github.io/AbedinPortfolio/assets/data/people.json";
+    // Hosted JSON lives on the repo's raw endpoint so it is always reachable via AJAX.
+    const remoteDataUrl = "https://raw.githubusercontent.com/aladdinabedin/AbedinPortfolio/main/assets/data/people.json";
     const localDataUrl = "assets/data/people.json";
 
     const inlineData = [
@@ -189,7 +190,7 @@
     ];
 
     const isFile = window.location.protocol === "file:";
-    const dataUrl = window.location.hostname.includes("github.io") ? hostedDataUrl : localDataUrl;
+    const dataUrl = window.location.protocol === "file:" ? null : remoteDataUrl;
 
     const columnSetup = [
       {
@@ -218,15 +219,17 @@
     ];
 
     function initTable(selector) {
+      const ajaxConfig = isFile
+        ? undefined
+        : function (_data, callback) {
+            fetch(dataUrl)
+              .then((res) => res.json())
+              .then((json) => callback({ data: json.results || json }))
+              .catch(() => callback({ data: inlineData }));
+          };
+
       const table = $(selector).DataTable({
-        ...(isFile
-          ? { data: inlineData }
-          : {
-              ajax: {
-                url: dataUrl,
-                dataSrc: "results"
-              }
-            }),
+        ...(isFile ? { data: inlineData } : { ajax: ajaxConfig }),
         columns: columnSetup,
         processing: true,
         dom:
@@ -257,7 +260,11 @@
             text: "Reload Data",
             className: "btn btn-outline-primary btn-sm",
             action: function (e, dt) {
-              dt.ajax.reload();
+              if (isFile) {
+                dt.clear().rows.add(inlineData).draw();
+              } else {
+                dt.ajax.reload();
+              }
             }
           }
         ],
